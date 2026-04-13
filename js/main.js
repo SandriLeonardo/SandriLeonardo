@@ -1,74 +1,114 @@
 /**
- * main.js — Three.js pointcloud scene
+ * main.js — Three.js pointcloud scene (CPU-friendly)
  *
- * Loads a pre-baked pointcloud JSON ({ positions: [...], colors: [...] })
- * and renders it as a Three.js Points object with vertex colors.
+ * - PointsMaterial with soft circular canvas texture (no custom shader)
+ * - Blue palette applied once at load time in JS (not per frame)
+ * - Gentle idle breathe animation
+ * - Collapse → swap → expand transition
  *
  * Public API (used by nav.js):
- *   scene.loadPointcloud(url)   → Promise — loads & transitions to a new pointcloud
- *   scene.resetToHome()         → transitions back to the home pointcloud
+ *   loadSectionPointcloud(section) → Promise
+ *   resetToHomePointcloud()
  */
 
 import * as THREE from 'three';
 
-// ── Constants ────────────────────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────
 
-const HOME_POINTCLOUD   = 'assets/pointcloud_home.bin';
-const POINT_SIZE        = 0.008;    // world-space point size
-const MOUSE_TILT_FACTOR = 0.25;     // how much mouse moves the scene (radians)
-const COLLAPSE_DURATION = 320;      // ms for collapse phase
-const EXPAND_DURATION   = 380;      // ms for expand phase
+const HOME_POINTCLOUD   = 'assets/home_pointcloud.bin';
+const POINT_SIZE        = 0.06;     // world-space units (scene is -1..1)
+const COLLAPSE_DURATION = 300;       // ms
+const EXPAND_DURATION   = 380;       // ms
+const BREATHE_SPEED     = 0.00008;   // radians/ms — very slow Y-axis rotation (no moiré)
+const Z_SCALE           = 0.4;       // must match --z-scale in precompute script
 
-// Placeholder URLs for each section's pointcloud
-// TODO: replace with real pre-baked pointcloud JSON files once section images are chosen
 const SECTION_POINTCLOUDS = {
-  projects: null,   // TODO: 'assets/pointcloud_projects.bin'
-  skills:   null,   // TODO: 'assets/pointcloud_skills.bin'
-  about:    null,   // TODO: 'assets/pointcloud_about.bin'
-  resume:   null,   // TODO: 'assets/pointcloud_resume.bin'
-  contact:  null,   // TODO: 'assets/pointcloud_contact.bin'
+  projects: 'assets/arm_pointcloud.bin',
+  skills:   'assets/python_pointcloud.bin',
+  about:    'assets/about_pointcloud.bin',
+  resume:   'assets/resume_pointcloud.bin',
+  contact:  'assets/contact_pointcloud.bin',
 };
 
-// ── Scene setup ──────────────────────────────────────────────────────────────
+// ── Circular soft-edge point texture (canvas, no file needed) ─────────────────
+
+function makeCircleTexture() {
+  const size = 64;
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const ctx  = canvas.getContext('2d');
+  const half = size / 2;
+  const grad = ctx.createRadialGradient(half, half, 0, half, half, half);
+  grad.addColorStop(0.0, 'rgba(255,255,255,1.0)');
+  grad.addColorStop(0.5, 'rgba(255,255,255,0.7)');
+  grad.addColorStop(1.0, 'rgba(255,255,255,0.0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+  return new THREE.CanvasTexture(canvas);
+}
+
+// ── Blue palette remap (runs once at load, not per frame) ─────────────────────
+
+/**
+ * Convert raw RGB + depth-encoded Z positions into a blue palette.
+ * Far objects → light blue, close + dark → deep navy.
+ * 70% depth influence, 30% original luminance.
+ */
+function remapToBlue(colors, positions) {
+  const n   = colors.length / 3;
+  const out = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const r = colors[i * 3], g = colors[i * 3 + 1], b = colors[i * 3 + 2];
+    const luma      = 0.299 * r + 0.587 * g + 0.114 * b;
+    const depth     = positions[i * 3 + 2] / Z_SCALE;   // 0=far, 1=close
+    const farFactor = 1.0 - depth;
+    const intensity = Math.min(1, Math.max(0, 0.7 * farFactor + 0.3 * luma));
+
+    // deep navy (0.05, 0.15, 0.48) → pale sky (0.62, 0.84, 1.00)
+    out[i * 3]     = 0.05 + 0.57 * intensity;
+    out[i * 3 + 1] = 0.15 + 0.69 * intensity;
+    out[i * 3 + 2] = 0.48 + 0.52 * intensity;
+  }
+  return out;
+}
+
+// ── Scene setup ───────────────────────────────────────────────────────────────
 
 const canvas   = document.getElementById('scene');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor(0x000000, 0);   // transparent — CSS background shows through
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true });
+renderer.setPixelRatio(1);   // force 1× pixel ratio — halves fill on HiDPI displays
+renderer.setClearColor(0x000000, 0);
 
 const scene  = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, 1, 0.01, 100);
 camera.position.set(0, 0, 2.8);
 
-// ── Geometry / material ──────────────────────────────────────────────────────
+// ── Geometry / material ───────────────────────────────────────────────────────
 
 const geometry = new THREE.BufferGeometry();
 const material = new THREE.PointsMaterial({
-  size:         POINT_SIZE,
-  vertexColors: true,
+  size:            POINT_SIZE,
+  vertexColors:    true,
   sizeAttenuation: true,
-  transparent: true,
-  opacity: 1.0,
+  transparent:     true,
+  alphaMap:        makeCircleTexture(),
+  depthWrite:      false,
 });
-const points = new THREE.Points(geometry, material);
-scene.add(points);
+const pointMesh = new THREE.Points(geometry, material);
+scene.add(pointMesh);
 
-// ── Internal state ───────────────────────────────────────────────────────────
+// ── Internal state ────────────────────────────────────────────────────────────
 
-let currentPositions = new Float32Array(0);   // flat xyz array currently displayed
-let targetPositions  = new Float32Array(0);   // flat xyz array we are animating toward
-let homePositions    = new Float32Array(0);   // cached home pointcloud positions
-let homeColors       = new Float32Array(0);   // cached home pointcloud colors
+let currentPositions = new Float32Array(0);
+let homePositions    = new Float32Array(0);
+let homeColors       = new Float32Array(0);   // already blue-remapped
 
-let transitionPhase  = 'idle';    // 'idle' | 'collapsing' | 'expanding'
+let transitionPhase  = 'idle';
 let transitionStart  = 0;
-let pendingPositions = null;      // positions waiting to expand after collapse
+let pendingPositions = null;
 let pendingColors    = null;
 
-let mouseX = 0, mouseY = 0;      // normalised -1..1
-let targetRotX = 0, targetRotY = 0;
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function resize() {
   const w = window.innerWidth, h = window.innerHeight;
@@ -79,17 +119,15 @@ function resize() {
 
 async function fetchPointcloud(url) {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to load pointcloud: ${url}`);
+  if (!res.ok) throw new Error(`Failed to load: ${url}`);
   const buf = await res.arrayBuffer();
-
-  // Binary format: 4-byte uint32 N, then N*3 float32 positions, then N*3 float32 colors
-  const n         = new DataView(buf).getUint32(0, true);   // little-endian
-  const positions = new Float32Array(buf,  4,          n * 3);
-  const colors    = new Float32Array(buf,  4 + n * 12, n * 3);
-  return { positions, colors };
+  const n   = new DataView(buf).getUint32(0, true);
+  return {
+    positions: new Float32Array(buf, 4,          n * 3),
+    colors:    new Float32Array(buf, 4 + n * 12, n * 3),
+  };
 }
 
-/** Apply new positions+colors to the geometry (no animation — instant swap) */
 function applyToGeometry(pos, col) {
   geometry.setAttribute('position', new THREE.BufferAttribute(pos.slice(), 3));
   geometry.setAttribute('color',    new THREE.BufferAttribute(col.slice(), 3));
@@ -98,139 +136,89 @@ function applyToGeometry(pos, col) {
   currentPositions = pos.slice();
 }
 
-/** Return a flat Float32Array of all zeros the same length as pos */
-function zeroPositions(pos) {
-  return new Float32Array(pos.length);   // all 0 → center of scene
-}
+// ── Transition ────────────────────────────────────────────────────────────────
 
-// ── Transition ───────────────────────────────────────────────────────────────
-
-/**
- * Animate: current → collapse to 0 → swap data → expand to new positions.
- * If newPositions/newColors are null, expand back to home.
- */
-function startTransition(newPositions, newColors) {
+export function startTransition(newPositions, newColors) {
   pendingPositions = newPositions;
   pendingColors    = newColors;
   transitionPhase  = 'collapsing';
   transitionStart  = performance.now();
-  targetPositions  = zeroPositions(currentPositions);
 }
 
 function easeInOut(t) {
   return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 }
 
-function lerp(a, b, t) { return a + (b - a) * t; }
-
 function tickTransition(now) {
   if (transitionPhase === 'idle') return;
-
-  const posAttr = geometry.attributes.position;
-  if (!posAttr) return;
+  const pa = geometry.attributes.position;
+  if (!pa) return;
 
   if (transitionPhase === 'collapsing') {
     const t = easeInOut(Math.min((now - transitionStart) / COLLAPSE_DURATION, 1));
-    for (let i = 0; i < currentPositions.length; i++) {
-      posAttr.array[i] = lerp(currentPositions[i], 0, t);
-    }
-    posAttr.needsUpdate = true;
+    for (let i = 0; i < currentPositions.length; i++) pa.array[i] = currentPositions[i] * (1 - t);
+    pa.needsUpdate = true;
 
     if (t >= 1) {
-      // Swap data
-      if (pendingPositions) {
-        applyToGeometry(pendingPositions, pendingColors);
-      } else {
-        applyToGeometry(homePositions, homeColors);
-      }
+      applyToGeometry(pendingPositions ?? homePositions, pendingColors ?? homeColors);
+      geometry.attributes.position.array.fill(0);
+      geometry.attributes.position.needsUpdate = true;
       transitionPhase = 'expanding';
       transitionStart = now;
-
-      // Start expanding from center
-      const posAttr2 = geometry.attributes.position;
-      for (let i = 0; i < currentPositions.length; i++) {
-        posAttr2.array[i] = 0;
-      }
-      posAttr2.needsUpdate = true;
     }
     return;
   }
 
   if (transitionPhase === 'expanding') {
     const t = easeInOut(Math.min((now - transitionStart) / EXPAND_DURATION, 1));
-    const posAttr2 = geometry.attributes.position;
-    for (let i = 0; i < currentPositions.length; i++) {
-      posAttr2.array[i] = lerp(0, currentPositions[i], t);
-    }
-    posAttr2.needsUpdate = true;
-
-    if (t >= 1) {
-      transitionPhase = 'idle';
-    }
+    for (let i = 0; i < currentPositions.length; i++) pa.array[i] = currentPositions[i] * t;
+    pa.needsUpdate = true;
+    if (t >= 1) transitionPhase = 'idle';
   }
 }
-
-// ── Mouse interaction ─────────────────────────────────────────────────────────
-
-window.addEventListener('mousemove', (e) => {
-  mouseX = (e.clientX / window.innerWidth)  * 2 - 1;
-  mouseY = (e.clientY / window.innerHeight) * 2 - 1;
-});
 
 // ── Animation loop ────────────────────────────────────────────────────────────
 
 function animate(now) {
   requestAnimationFrame(animate);
-
-  // Smooth mouse tilt
-  targetRotY += (mouseX * MOUSE_TILT_FACTOR - targetRotY) * 0.06;
-  targetRotX += (-mouseY * MOUSE_TILT_FACTOR * 0.6 - targetRotX) * 0.06;
-  points.rotation.y = targetRotY;
-  points.rotation.x = targetRotX;
-
+  pointMesh.rotation.y = Math.sin(now * BREATHE_SPEED) * 0.18;  // slow gentle rotation, no moiré
   tickTransition(now);
-
   renderer.render(scene, camera);
 }
 
-// ── Initialise ────────────────────────────────────────────────────────────────
+// ── Init ──────────────────────────────────────────────────────────────────────
 
 resize();
 window.addEventListener('resize', resize);
 
 fetchPointcloud(HOME_POINTCLOUD)
   .then(({ positions, colors }) => {
+    const blueColors  = remapToBlue(colors, positions);
     homePositions = positions;
-    homeColors    = colors;
-    applyToGeometry(positions, colors);
+    homeColors    = blueColors;
+    applyToGeometry(positions, blueColors);
     animate(0);
   })
   .catch((err) => {
-    // TODO: show a visible error or fallback animation when pointcloud is missing
-    console.warn('[pointcloud] Could not load home pointcloud:', err.message);
-    console.warn('Run tools/precompute_pointcloud.py and place the output in assets/pointcloud_home.bin');
-    animate(0);   // still start the loop so the page doesn't freeze
+    // TODO: show a visible fallback when pointcloud file is missing
+    console.warn('[pointcloud]', err.message);
+    console.warn('Regenerate with: python tools/precompute_pointcloud.py --output assets/home_pointcloud.bin');
+    animate(0);
   });
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
-/**
- * Load a section pointcloud by section name.
- * If no pointcloud is configured for that section, keeps the current one.
- */
 export async function loadSectionPointcloud(section) {
   const url = SECTION_POINTCLOUDS[section];
-  if (!url) return;   // TODO: remove guard once section pointclouds are added
-
+  if (!url) return;
   try {
     const { positions, colors } = await fetchPointcloud(url);
-    startTransition(positions, colors);
+    startTransition(positions, remapToBlue(colors, positions));
   } catch (e) {
-    console.warn(`[pointcloud] Could not load pointcloud for "${section}":`, e.message);
+    console.warn(`[pointcloud] Could not load "${section}":`, e.message);
   }
 }
 
-/** Transition back to the home pointcloud */
 export function resetToHomePointcloud() {
-  startTransition(null, null);   // null → expand to homePositions
+  startTransition(null, null);
 }

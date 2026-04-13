@@ -12,8 +12,8 @@
   --text:        #1a3a52;       /* general dark-blue text */
   --accent:      #3a7ca8;       /* links, active states */
 
-  --crown-radius: 220px;        /* distance of dots from center */
-  --dot-size:    56px;
+  --crown-radius: 330px;        /* distance of dots from center — adjust freely */
+  --dot-size:     72px;         /* crown dot diameter — adjust freely */
   --transition:  0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -48,11 +48,11 @@ html, body {
   width:  var(--dot-size);
   height: var(--dot-size);
   border-radius: 50%;
-  border: 2px solid var(--dot-idle);
+  border: 3px solid var(--dot-idle); /* dot border width — adjust freely */
   background: rgba(200, 223, 240, 0.55);
   backdrop-filter: blur(4px);
   color: var(--dot-label);
-  font-size: 0.65rem;
+  font-size: 0.9rem;   /* dot label font size — adjust freely */
   font-weight: 600;
   letter-spacing: 0.03em;
   text-align: center;
@@ -86,12 +86,13 @@ html, body {
 
 /* State when section is open: dots become menu bar items */
 .crown-dot.in-menu {
+  position: static;       /* leave absolute flow, become flex item */
+  transform: none;
   border-radius: 6px;
   width: auto;
   height: 36px;
   padding: 0 16px;
   font-size: 0.8rem;
-  transform: translate(-50%, -50%);
 }
 
 .crown-dot.active-section {
@@ -241,10 +242,11 @@ body.section-open {
 /* ── Resume iframe ───────────────────────────────────────────────────────── */
 #cv-frame {
   width: 100%;
-  height: calc(100vh - 160px);
+  height: 1123px;   /* A4 at 96dpi — tall enough to show full page without internal scroll */
   border: 1px solid var(--menu-border);
   border-radius: 8px;
-  /* TODO: set src="assets/cv.pdf" once CV is placed in assets/ */
+  display: block;
+  /* TODO: copy CV to assets/cv.pdf to activate */
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────────────────── */

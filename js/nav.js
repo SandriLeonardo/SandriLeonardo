@@ -11,18 +11,27 @@
  */
 
 import { loadSectionPointcloud, resetToHomePointcloud } from './main.js';
+import { enterAbout }    from './sections/about.js';
+import { enterSkills }   from './sections/skills.js';
+import { enterProjects } from './sections/projects.js';
+import { enterContact }  from './sections/contact.js';
+
+const SECTION_ENTER = {
+  about:    enterAbout,
+  skills:   enterSkills,
+  projects: enterProjects,
+  contact:  enterContact,
+  // resume: no JS init needed — PDF iframe is static HTML
+};
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
-const CROWN_RADIUS = 220;   // px from viewport center (matches --crown-radius in CSS)
+const CROWN_RADIUS = 330;   // px from viewport center — must match --crown-radius in css/style.css
 const SECTIONS = ['projects', 'skills', 'about', 'resume', 'contact'];
 
 // Sub-filter definitions per section
-// TODO: expand these as real content is added
-const SUB_FILTERS = {
-  projects: ['All', 'Aerospace', 'Robotics', 'Computer Vision'],
-  // TODO: add sub-filters for other sections if needed
-};
+// Projects sub-filters are handled inside js/sections/projects.js — no duplication here
+const SUB_FILTERS = {};
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 
@@ -113,7 +122,10 @@ function openSection(section) {
   // 5. Show section content
   showPanel(section);
 
-  // 6. Swap pointcloud (no-op if no pointcloud configured for this section)
+  // 6. Call section-specific init/enter (lazy — only runs on first open)
+  SECTION_ENTER[section]?.();
+
+  // 7. Swap pointcloud
   loadSectionPointcloud(section);
 
   document.body.classList.add('section-open');
@@ -185,6 +197,7 @@ function switchSection(section) {
 
   renderSubFilters(section);
   showPanel(section);
+  SECTION_ENTER[section]?.();
   loadSectionPointcloud(section);
 }
 
