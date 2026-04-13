@@ -1,0 +1,256 @@
+/* ── Reset & base ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #c8dff0;       /* light blue background */
+  --dot-idle:    #7aaac8;       /* crown dot resting color */
+  --dot-hover:   #3a7ca8;       /* crown dot highlighted */
+  --dot-dim:     #a8c8e0;       /* crown dot dimmed when another is hovered */
+  --dot-label:   #1a3a52;       /* dot text color */
+  --menu-bg:     #ddeef8;       /* menu bar background */
+  --menu-border: #9bbfd8;       /* menu bar border */
+  --text:        #1a3a52;       /* general dark-blue text */
+  --accent:      #3a7ca8;       /* links, active states */
+
+  --crown-radius: 220px;        /* distance of dots from center */
+  --dot-size:    56px;
+  --transition:  0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;             /* home page: no scroll */
+  background: var(--bg);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: var(--text);
+}
+
+/* ── Three.js canvas ───────────────────────────────────────────────────── */
+#scene {
+  position: fixed;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  z-index: 0;
+}
+
+/* ── Crown ─────────────────────────────────────────────────────────────── */
+#crown {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;         /* let canvas receive mouse for 3D tilt */
+  z-index: 10;
+}
+
+.crown-dot {
+  position: absolute;
+  width:  var(--dot-size);
+  height: var(--dot-size);
+  border-radius: 50%;
+  border: 2px solid var(--dot-idle);
+  background: rgba(200, 223, 240, 0.55);
+  backdrop-filter: blur(4px);
+  color: var(--dot-label);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-align: center;
+  cursor: pointer;
+  pointer-events: all;
+  transform: translate(-50%, -50%);  /* center on calculated position */
+
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    color var(--transition),
+    opacity var(--transition),
+    top var(--transition),
+    left var(--transition),
+    width var(--transition),
+    height var(--transition),
+    border-radius var(--transition),
+    font-size var(--transition);
+}
+
+.crown-dot:hover,
+.crown-dot.highlighted {
+  background: var(--dot-hover);
+  border-color: var(--dot-hover);
+  color: #fff;
+}
+
+.crown-dot.dimmed {
+  opacity: 0.3;
+}
+
+/* State when section is open: dots become menu bar items */
+.crown-dot.in-menu {
+  border-radius: 6px;
+  width: auto;
+  height: 36px;
+  padding: 0 16px;
+  font-size: 0.8rem;
+  transform: translate(-50%, -50%);
+}
+
+.crown-dot.active-section {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ── Menu bar ───────────────────────────────────────────────────────────── */
+#menu-bar {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-110%);  /* hidden above viewport */
+  z-index: 20;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+
+  background: var(--menu-bg);
+  border: 1px solid var(--menu-border);
+  border-radius: 0 0 20px 20px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 24px rgba(58, 124, 168, 0.15);
+
+  transition: transform var(--transition);
+}
+
+#menu-bar.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+.menu-home {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0 8px 0 0;
+  border-right: 1px solid var(--menu-border);
+  margin-right: 4px;
+  line-height: 1;
+}
+
+.menu-home:hover { color: var(--dot-hover); }
+
+#menu-items {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Sub-filters (e.g. Projects: All / Aerospace / Robotics …) */
+#sub-filters {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px solid var(--menu-border);
+}
+
+/* ── Section content panels ─────────────────────────────────────────────── */
+#content {
+  position: fixed;
+  inset: 0;
+  top: 52px;                    /* below menu bar */
+  z-index: 5;
+  pointer-events: none;
+  overflow-y: auto;
+}
+
+body.section-open {
+  overflow: hidden;             /* keep body locked, content scrolls */
+}
+
+#content.visible {
+  pointer-events: all;
+}
+
+.panel {
+  display: none;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity var(--transition), transform var(--transition);
+  min-height: 100%;
+  padding: 32px 48px;
+}
+
+.panel.active {
+  display: block;
+}
+
+.panel.shown {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.panel h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: var(--text);
+}
+
+.placeholder {
+  color: var(--dot-idle);
+  font-style: italic;
+  /* TODO: remove once real content is added */
+}
+
+/* ── Project grid & filters ─────────────────────────────────────────────── */
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filter {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--dot-idle);
+  background: transparent;
+  color: var(--text);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+
+.filter:hover,
+.filter.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  /* TODO: populate with project cards via js/sections/projects.js */
+}
+
+/* ── Resume iframe ───────────────────────────────────────────────────────── */
+#cv-frame {
+  width: 100%;
+  height: calc(100vh - 160px);
+  border: 1px solid var(--menu-border);
+  border-radius: 8px;
+  /* TODO: set src="assets/cv.pdf" once CV is placed in assets/ */
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+#content::-webkit-scrollbar { width: 6px; }
+#content::-webkit-scrollbar-track { background: transparent; }
+#content::-webkit-scrollbar-thumb {
+  background: var(--dot-idle);
+  border-radius: 3px;
+}

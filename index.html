@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leonardo Sandri</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ── MENU BAR (hidden until a section is opened) ─────────────────── -->
+  <nav id="menu-bar" aria-hidden="true">
+    <button id="btn-home" class="menu-home" title="Home">&#8962;</button>
+    <div id="menu-items"></div>
+  </nav>
+
+  <!-- ── THREE.JS CANVAS ──────────────────────────────────────────────── -->
+  <canvas id="scene"></canvas>
+
+  <!-- ── CROWN DOTS (home navigation) ────────────────────────────────── -->
+  <div id="crown">
+    <button class="crown-dot" data-section="projects">Projects</button>
+    <button class="crown-dot" data-section="skills">Skills</button>
+    <button class="crown-dot" data-section="about">About</button>
+    <button class="crown-dot" data-section="resume">Resume</button>
+    <button class="crown-dot" data-section="contact">Contact</button>
+  </div>
+
+  <!-- ── SECTION PANELS ───────────────────────────────────────────────── -->
+  <main id="content" aria-hidden="true">
+
+    <section id="sec-projects" class="panel">
+      <div class="panel-inner">
+        <h2>Projects</h2>
+        <div id="projects-filters" class="filters">
+          <button class="filter active" data-filter="all">All</button>
+          <button class="filter" data-filter="aerospace">Aerospace</button>
+          <button class="filter" data-filter="robotics">Robotics</button>
+          <button class="filter" data-filter="cv">Computer Vision</button>
+        </div>
+        <div id="projects-list" class="project-grid">
+          <!-- populated by js/sections/projects.js -->
+          <p class="placeholder">Projects coming soon.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="sec-skills" class="panel">
+      <div class="panel-inner">
+        <h2>Skills</h2>
+        <p class="placeholder">Skills coming soon.</p>
+      </div>
+    </section>
+
+    <section id="sec-about" class="panel">
+      <div class="panel-inner">
+        <h2>About</h2>
+        <p class="placeholder">About coming soon.</p>
+      </div>
+    </section>
+
+    <section id="sec-resume" class="panel">
+      <div class="panel-inner">
+        <h2>Resume</h2>
+        <p class="placeholder">Drop your CV PDF into <code>assets/cv.pdf</code> and it will appear here.</p>
+        <iframe id="cv-frame" src="assets/cv.pdf" title="CV"></iframe>
+      </div>
+    </section>
+
+    <section id="sec-contact" class="panel">
+      <div class="panel-inner">
+        <h2>Contact</h2>
+        <p class="placeholder">Contact coming soon.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── THREE.JS via importmap ────────────────────────────────────────── -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js"
+    }
+  }
+  </script>
+
+  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/nav.js"></script>
+
+</body>
+</html>
