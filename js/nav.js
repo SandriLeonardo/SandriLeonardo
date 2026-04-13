@@ -26,8 +26,13 @@ const SECTION_ENTER = {
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
-const CROWN_RADIUS = 330;   // px from viewport center — must match --crown-radius in css/style.css
 const SECTIONS = ['projects', 'skills', 'about', 'resume', 'contact'];
+
+// Responsive crown radius: capped at 330px on desktop,
+// scales down on smaller screens to keep dots visible.
+function getCrownRadius() {
+  return Math.min(330, Math.min(window.innerWidth, window.innerHeight) * 0.38);
+}
 
 // Sub-filter definitions per section
 // Projects sub-filters are handled inside js/sections/projects.js — no duplication here
@@ -55,10 +60,11 @@ function placeCrownDots() {
   const startAngle = Math.PI / 2 + Math.PI / 6;   // 120° (bottom-left)
   const sweep      = (2 * Math.PI * 2) / 3;        // 240°
 
+  const r = getCrownRadius();
   dots.forEach((dot, i) => {
     const angle = startAngle + (i / (count - 1)) * sweep;
-    const x = cx + CROWN_RADIUS * Math.cos(angle);
-    const y = cy + CROWN_RADIUS * Math.sin(angle);
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
     dot.style.left = `${x}px`;
     dot.style.top  = `${y}px`;
   });

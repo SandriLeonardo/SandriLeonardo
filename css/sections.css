@@ -516,3 +516,53 @@
 }
 .form-status--ok  { color: #2a7a4a; }
 .form-status--err { color: #a04040; }
+
+/* ── Mobile section layouts ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+
+  /* Skills: narrower label so bar is still visible */
+  .skill-name {
+    width: 110px;
+    min-width: 110px;
+    font-size: 0.8rem;
+  }
+
+  .skill-tabs {
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  /* Project grid: single column on narrow screens */
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Project modal: full-width */
+  #proj-modal {
+    width: 96%;
+    padding: 20px;
+    max-height: 88vh;
+  }
+
+  /* About: remove max-width constraint */
+  .about-bio,
+  .about-facts {
+    max-width: 100%;
+  }
+
+  /* Contact: stack name/email side-by-side row */
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Social links: stack vertically */
+  .social-links {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .social-link {
+    width: 100%;
+  }
+}

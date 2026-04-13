@@ -256,3 +256,39 @@ body.section-open {
   background: var(--dot-idle);
   border-radius: 3px;
 }
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  :root {
+    --dot-size: 56px;           /* smaller touch targets still ≥ 44px */
+  }
+
+  /* Menu bar: allow wrapping and scrolling if many items */
+  #menu-bar {
+    width: 100%;
+    left: 0;
+    transform: translateY(-110%);
+    border-radius: 0 0 14px 14px;
+    padding: 6px 10px;
+    flex-wrap: wrap;
+    overflow-x: auto;
+  }
+  #menu-bar.visible {
+    transform: translateY(0);
+  }
+
+  .crown-dot.in-menu {
+    height: 30px;
+    padding: 0 10px;
+    font-size: 0.72rem;
+  }
+
+  /* Content panel padding */
+  .panel {
+    padding: 20px 16px;
+  }
+
+  #content {
+    top: 48px;
+  }
+}
