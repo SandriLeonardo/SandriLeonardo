@@ -69,9 +69,9 @@ export const projects = [
     filters: ['cg'],
     tags:    ['JavaScript', 'Three.js', 'Cannon.js', 'WebGL', 'Pathfinding', 'Collision Detection'],
     summary: [
-      'Built a physics-based 3D game engine from scratch using Three.js for rendering and Cannon.js for rigid-body physics.',
-      'Implemented real-time collision detection, pathfinding AI, and a rendering pipeline for dynamic interactive environments.',
-      'Used as a sandbox for testing autonomous agent behaviours and physics interactions in a controllable virtual space.',
+      'Built a complete 3D adventure game: scene graph, WebGL rendering pipeline, modular room architecture with dynamic loading, spatial audio, and interactive NPC systems.',
+      'Integrated Cannon.js for physics-based character controller and collision detection; implemented hybrid animation system combining IK (CCDIKSolver) with keyframe interpolation.',
+      'Implemented enemy AI with proximity-based behaviour and raycasting-based combat mechanics; custom pose control system with dat.GUI debug interface.',
     ],
     repo: 'https://github.com/SandriLeonardo/3D-Room-Game-THREE.js---Viviel',
   },
