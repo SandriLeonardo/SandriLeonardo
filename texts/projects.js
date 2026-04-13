@@ -10,7 +10,7 @@ export const projects = [
     date:    'Nov 2025 – Feb 2026',
     org:     'FieldRobotics, Bologna',
     filters: ['robotics', 'cv'],
-    tags:    ['ROS 1', 'ABB Arm', 'OpenCV', '3D Reconstruction', 'Edge Deployment', 'Python'],
+    tags:    ['ROS 1', 'ROS 2', 'ABB Arm', 'OpenCV', '3D Reconstruction', 'Edge Deployment', 'Python'],
     summary: [
       'Developed an end-to-end autonomous pruning pipeline for commercial agricultural rover deployment.',
       'Integrated an ABB robotic arm with a ROS 1 computer vision pipeline using native ABB software and custom ROS interfaces.',
@@ -53,7 +53,7 @@ export const projects = [
     date:    '2024',
     org:     'Sapienza University of Rome',
     filters: ['robotics', 'cv'],
-    tags:    ['MATLAB', 'Simulink', 'Computer Vision', 'Quadrotor', 'Control Systems', 'Python'],
+    tags:    ['MATLAB', 'Simulink', 'Computer Vision', 'Quadrotor', 'Control Systems'],
     summary: [
       'Implemented a vision-based detection system for identifying and tracking a mobile landing platform from onboard camera footage.',
       'Designed and tuned quadrotor control laws in MATLAB/Simulink for autonomous approach and landing on a moving target.',
