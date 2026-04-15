@@ -15,7 +15,7 @@ import * as THREE from 'three';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const HOME_POINTCLOUD   = 'assets/home_pointcloud.bin';
+const HOME_POINTCLOUD   = 'assets/arm_pointcloud.bin';
 const POINT_SIZE        = 0.06;     // world-space units (scene is -1..1)
 const COLLAPSE_DURATION = 300;       // ms
 const EXPAND_DURATION   = 380;       // ms
