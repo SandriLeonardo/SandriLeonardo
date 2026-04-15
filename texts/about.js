@@ -1,12 +1,6 @@
 // texts/about.js — About section content
 // Derived from cover letters: Nintendo, ESA, Lamborghini, FieldRobotics.
 // Edit this file to update the About section without touching rendering logic.
-//
-// TODO: review remaining CV versions in C:\Users\leosa\Documents\università\curriculum\versioni\
-//       (nvidia, agrico, dallara, tohoku, tu delft, varaha, disney, thales, brembo...)
-//       for additional themes or phrasing worth incorporating.
-// TODO: check LinkedIn profile (linkedin.com/in/leonardosandriaeroairobotics) for any
-//       summary or experience wording that differs from the cover letters, reconcile tone.
 
 export const aboutData = {
   tagline: 'MSc AI & Robotics · BSc Aerospace Engineering',

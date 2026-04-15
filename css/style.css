@@ -200,12 +200,6 @@ body.section-open {
   color: var(--text);
 }
 
-.placeholder {
-  color: var(--dot-idle);
-  font-style: italic;
-  /* TODO: remove once real content is added */
-}
-
 /* ── Project grid & filters ─────────────────────────────────────────────── */
 .filters {
   display: flex;
@@ -236,7 +230,6 @@ body.section-open {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
-  /* TODO: populate with project cards via js/sections/projects.js */
 }
 
 /* ── Resume iframe ───────────────────────────────────────────────────────── */
@@ -246,7 +239,6 @@ body.section-open {
   border: 1px solid var(--menu-border);
   border-radius: 8px;
   display: block;
-  /* TODO: copy CV to assets/cv.pdf to activate */
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────────────────── */

@@ -250,7 +250,6 @@ function renderSubFilters(section) {
     btn.addEventListener('click', () => {
       bar.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      // TODO: trigger project list filtering in js/sections/projects.js
     });
     bar.appendChild(btn);
   });
