@@ -9,7 +9,7 @@ export const projects = [
     title:   'Autonomous Grapevine Pruning System',
     date:    'Nov 2025 – Feb 2026',
     org:     'FieldRobotics, Bologna',
-    filters: ['robotics', 'cv'],
+    filters: ['robotics', 'cv', 'agriculture'],
     tags:    ['ROS 1', 'ROS 2', 'ABB Arm', 'OpenCV', '3D Reconstruction', 'Edge Deployment', 'Python'],
     summary: [
       'Developed an end-to-end autonomous pruning pipeline for commercial agricultural rover deployment.',
@@ -24,7 +24,7 @@ export const projects = [
     title:   'InterCropGym — RL for Agricultural Systems',
     date:    'Dec 2024 – Feb 2025',
     org:     'Sapienza University of Rome',
-    filters: ['ml'],
+    filters: ['ml', 'agriculture'],
     tags:    ['Python', 'PyTorch', 'RL', 'DDQN', 'SAC', 'PPO', 'Precision Agriculture'],
     summary: [
       'Extended the CropGym simulation framework with the LINTUL3 crop growth engine for multi-crop environments.',
@@ -99,5 +99,6 @@ export const projectFilters = [
   { id: 'cv',       label: 'Computer Vision' },
   { id: 'ml',       label: 'Machine Learning' },
   { id: 'cg',       label: 'Computer Graphics' },
-  { id: 'aerospace',label: 'Aerospace' },
+  { id: 'aerospace',  label: 'Aerospace' },
+  { id: 'agriculture', label: 'Agriculture' },
 ];
