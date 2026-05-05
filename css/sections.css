@@ -510,6 +510,17 @@
   transform: translateY(-2px);
 }
 
+.form-privacy {
+  font-size: 0.75rem;
+  color: var(--dot-idle);
+  margin: 0;
+}
+
+.form-privacy a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
 .form-status {
   font-size: 0.85rem;
   min-height: 1.2em;

@@ -67,6 +67,7 @@ export function initContact() {
       <textarea id="cf-message" name="message" rows="5" placeholder="Your message…" required></textarea>
     </div>
     <button type="submit" class="form-submit">Send Message</button>
+    <p class="form-privacy">Your data is sent via <a href="https://formspree.io/legal/privacy-policy" target="_blank" rel="noopener">Formspree</a> and used only to reply to you.</p>
     <p id="form-status" class="form-status" aria-live="polite"></p>
   `;
 
