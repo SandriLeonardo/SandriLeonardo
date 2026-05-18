@@ -5,6 +5,17 @@
 
 export const skillCategories = [
   {
+    id:    'llm',
+    label: 'LLM & AI Safety',
+    tags: [
+      'Prompt Injection / Red-Teaming',
+      'Adversarial Prompting',
+      'LLM Integration (Llama)',
+      'RLHF',
+      'Constitutional AI',
+    ],
+  },
+  {
     id:    'tools',
     label: 'Dev Tools',
     skills: [

@@ -233,39 +233,22 @@ body.section-open {
 }
 
 /* ── Resume layout ───────────────────────────────────────────────────────── */
-#sec-resume.active {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 52px);  /* 52px = menu bar — avoid % on fixed+overflow parent */
-  min-height: unset;
-  overflow: hidden;
-}
-
-#sec-resume .panel-inner {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
 .resume-tabs {
   display: flex;
   gap: 8px;
   margin-bottom: 14px;
-  flex-shrink: 0;
 }
 
 .resume-frame-wrap {
-  flex: 1;
-  min-height: 0;
-  position: relative;
+  height: calc(100vh - 240px); /* viewport - menu(52) - padding(64) - h2(58) - tabs(50) - buffer */
 }
 
 .cv-frame {
-  position: absolute;
-  inset: 0;
+  width: 100%;
+  height: 100%;
   border: 1px solid var(--menu-border);
   border-radius: 8px;
+  display: block;
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────────────────── */
@@ -307,8 +290,8 @@ body.section-open {
     padding: 20px 16px;
   }
 
-  #sec-resume.active {
-    height: calc(100vh - 48px);  /* menu bar is 48px on mobile */
+  .resume-frame-wrap {
+    height: calc(100vh - 200px); /* tighter on mobile: smaller menu(48) + padding(40) */
   }
 
   #content {

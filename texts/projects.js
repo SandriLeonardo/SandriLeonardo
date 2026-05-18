@@ -20,6 +20,21 @@ export const projects = [
     repo: null,   // private repository
   },
   {
+    id:      'llmchallenge',
+    title:   'LLM Jailbreaking Challenge — Generative AI Safety',
+    date:    'Apr 2025',
+    org:     'Sapienza University of Rome',
+    filters: ['ml', 'llm'],
+    tags:    ['Prompt Injection', 'LLM Red-Teaming', 'AI Safety', 'Adversarial ML', 'Python', 'Minerva'],
+    summary: [
+      'Only participant in the entire MSc cohort to fully solve the competitive red-teaming challenge, and the fastest — chosen over the standard written exam.',
+      'Task: extract a secret word from Minerva (Sapienza\'s custom-deployed LLM) with no system-prompt access. Applied indirect context leakage, role-play framing, output steering, and multi-step chain attacks.',
+      'Studied and applied five adversarial technique families: multilingual jailbreaking, structured prompt injection (HOUYI), Crescendo multi-turn escalation, sleeper agent triggers, and data poisoning with prefix-tuning.',
+      'Graduate course covered RLHF, Constitutional AI, alignment stress-testing, model organisms of misalignment, and safety evaluation frameworks.',
+    ],
+    repo: 'https://github.com/DiTB42/LLM_Challenge',
+  },
+  {
     id:      'intercropgym',
     title:   'InterCropGym — RL for Agricultural Systems',
     date:    'Dec 2024 – Feb 2025',
@@ -98,6 +113,7 @@ export const projectFilters = [
   { id: 'robotics', label: 'Robotics' },
   { id: 'cv',       label: 'Computer Vision' },
   { id: 'ml',       label: 'Machine Learning' },
+  { id: 'llm',     label: 'LLM / AI Safety' },
   { id: 'cg',       label: 'Computer Graphics' },
   { id: 'aerospace',  label: 'Aerospace' },
   { id: 'agriculture', label: 'Agriculture' },
