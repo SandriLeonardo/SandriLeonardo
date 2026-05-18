@@ -236,7 +236,7 @@ body.section-open {
 #sec-resume.active {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: calc(100vh - 52px);  /* 52px = menu bar — avoid % on fixed+overflow parent */
   min-height: unset;
   overflow: hidden;
 }
@@ -305,6 +305,10 @@ body.section-open {
   /* Content panel padding */
   .panel {
     padding: 20px 16px;
+  }
+
+  #sec-resume.active {
+    height: calc(100vh - 48px);  /* menu bar is 48px on mobile */
   }
 
   #content {
