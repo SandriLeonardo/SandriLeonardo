@@ -15,13 +15,14 @@ import { enterAbout }    from './sections/about.js';
 import { enterSkills }   from './sections/skills.js';
 import { enterProjects } from './sections/projects.js';
 import { enterContact }  from './sections/contact.js';
+import { enterResume }   from './sections/resume.js';
 
 const SECTION_ENTER = {
   about:    enterAbout,
   skills:   enterSkills,
   projects: enterProjects,
   contact:  enterContact,
-  // resume: no JS init needed — PDF iframe is static HTML
+  resume:   enterResume,
 };
 
 // ── Config ────────────────────────────────────────────────────────────────────
